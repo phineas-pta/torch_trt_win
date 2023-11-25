@@ -169,10 +169,10 @@ def which(program):
 
 BAZEL_EXE = None
 if not FX_ONLY:
-    BAZEL_EXE = which("bazelisk")
+    BAZEL_EXE = which("bazelisk.exe")
 
     if BAZEL_EXE is None:
-        BAZEL_EXE = which("bazel")
+        BAZEL_EXE = which("bazel.exe")
         if BAZEL_EXE is None:
             sys.exit("Could not find bazel in PATH")
 
@@ -213,9 +213,6 @@ def build_libtorchtrt_pre_cxx11_abi(develop=True, use_dist_dir=True, cxx11_abi=F
 
 
 def gen_version_file():
-    if not os.path.exists(dir_path + "/torch_tensorrt/_version.py"):
-        os.mknod(dir_path + "/torch_tensorrt/_version.py")
-
     with open(dir_path + "/torch_tensorrt/_version.py", "w") as f:
         print("creating version file")
         f.write('__version__ = "' + __version__ + '"\n')
@@ -451,7 +448,7 @@ if not FX_ONLY:
                 (dir_path + "/torch_tensorrt/lib/"),
                 "/opt/conda/lib/python3.6/config-3.6m-x86_64-linux-gnu",
             ],
-            libraries=["torchtrt"],
+            libraries=["torch_tensorrt.dll.if"],
             include_dirs=[
                 dir_path + "torch_tensorrt/csrc",
                 dir_path + "torch_tensorrt/include",
@@ -462,34 +459,8 @@ if not FX_ONLY:
                 dir_path + "/../",
                 "/usr/local/cuda",
             ],
-            extra_compile_args=[
-                "-Wno-deprecated",
-                "-Wno-deprecated-declarations",
-            ]
-            + (
-                ["-D_GLIBCXX_USE_CXX11_ABI=1"]
-                if CXX11_ABI
-                else ["-D_GLIBCXX_USE_CXX11_ABI=0"]
-            ),
-            extra_link_args=[
-                "-Wno-deprecated",
-                "-Wno-deprecated-declarations",
-                "-Wl,--no-as-needed",
-                "-ltorchtrt",
-                "-Wl,-rpath,$ORIGIN/lib",
-                "-lpthread",
-                "-ldl",
-                "-lutil",
-                "-lrt",
-                "-lm",
-                "-Xlinker",
-                "-export-dynamic",
-            ]
-            + (
-                ["-D_GLIBCXX_USE_CXX11_ABI=1"]
-                if CXX11_ABI
-                else ["-D_GLIBCXX_USE_CXX11_ABI=0"]
-            ),
+            extra_compile_args=["/D", "NO_EXPORT", f"-D_GLIBCXX_USE_CXX11_ABI={int(CXX11_ABI)}"],
+            extra_link_args=["/OPT:NOREF", f"-D_GLIBCXX_USE_CXX11_ABI={int(CXX11_ABI)}"],
             undef_macros=["NDEBUG"],
         )
     ]

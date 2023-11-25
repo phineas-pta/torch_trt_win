@@ -14,7 +14,7 @@
 #define TORCHTRT_API __attribute__((__visibility__("default")))
 #define TORCHTRT_HIDDEN __attribute__((__visibility__("hidden")))
 #else
-#define TORCHTRT_API
+#define TORCHTRT_API __declspec(dllexport)
 #define TORCHTRT_HIDDEN
 #endif // defined(__GNUC__)
 #endif // defined(USE_CMAKE_GENERATED_EXPORT_HEADER)
